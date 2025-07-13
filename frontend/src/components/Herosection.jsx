@@ -22,7 +22,7 @@ const Herosection = () => {
 
         </div>
         <p className='max-w-md text-gray-300'>
-            After stealing a mysterious orb in the far reaches of outer space, Peter Quill from Earth is now the main target of a manhunt led by the villainous Ronan. To evade Ronan, Quill is forced into an uneasy truce with four disparate misfits: gun-toting Rocket, tree-like humanoid Groot, enigmatic Gamora and vengeance-driven Drax the Destroyer. But when Quill discovers the true power of the orb and the threat it poses to the cosmos, he must rally his ragtag group to save the galaxy.
+            After stealing a mysterious orb in the far reaches of outer space, Peter Quill from Earth is now the main target of a manhunt led by the villainous Ronan. 
         </p>
         <button onClick={()=>navigate('/movies')} className='flex items-center gap-1 px-6 py-3 text-sm bg-[#F84565] hover:bg-[#D63854] transition rounded-full font-medium cursor-pointer'>
             Explore movies 
