@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
-theme{
-  primary: #F84565;
-  primary-dull: #D63854
+:root{
+  --primary: #F84565;
+  --primary-dull: #D63854
 
 }
 
@@ -17,4 +17,6 @@ body{
   color: white;
   background-color: black;
 }
-
+.no-scrollbar{
+  scrollbar-width: none;
+}
