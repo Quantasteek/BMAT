@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { dummyBookingData } from '../../assets/assets';
 import Loading from '../../components/Loading';
 import Title from './Title';
-import { data } from 'react-router-dom';
 import { dateFormat } from '../../lib/dateFormat';
 
 const ListBookings = () => {
