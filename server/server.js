@@ -5,16 +5,18 @@ import connectDB from './config/db.js';
 import { clerkMiddleware } from '@clerk/express'
 import { serve } from 'inngest/express';
 import { inngest, functions } from './inngest/index.js';
+import showRouter from './routes/showRoutes.js';
 
 
 const app = express();
-const port = 3000;
+const port = 7000;
 
 // Middleware
 
 app.use(cors());    
 app.use(express.json());    
 app.use(clerkMiddleware());
+
 
 await connectDB();
 
@@ -24,5 +26,6 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/inngest', serve({client: inngest, functions}))     
+app.use('/api/show', showRouter) 
 
 app.listen(port, ()=>{console.log(`Server is running on port ${port}`)})        
