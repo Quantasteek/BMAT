@@ -9,7 +9,7 @@ import showRouter from './routes/showRoutes.js';
 
 
 const app = express();
-const port = 7000;
+const port = 9000;
 
 // Middleware
 
