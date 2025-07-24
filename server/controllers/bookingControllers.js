@@ -1,5 +1,5 @@
-import Booking from "../models/Booking";
-import Show from "../models/Show"
+import Booking from "../models/Booking.js";
+import Show from "../models/Show.js"
 
 const checkSeatAvailability = async (showId, selectedSeats) => {
     try{
@@ -21,7 +21,7 @@ const checkSeatAvailability = async (showId, selectedSeats) => {
 
     }
 
-    export const createBooking = async(req, res) => {
+export const createBooking = async(req, res) => {
         try {
             const {userId} = req.auth();
             const {showId, selectedSeats}= req.body
@@ -64,3 +64,27 @@ const checkSeatAvailability = async (showId, selectedSeats) => {
             
         }
     }
+
+
+export const getOccupiedSeats= async(req, res)=>{
+    try{
+        const {showId} = req.params;
+        const showData = await Show.findById(showId);
+        if(!showData) {
+            return res.json({success: false, message: "Show not found"});
+        }
+
+        const occupiedSeats = Object.keys(showData.occupiedSeats) 
+
+        res.json({
+            success: true,
+            occupiedSeats
+        })
+    }catch(err){
+        console.log(err.message);
+        res.json({
+            success:false,
+            message:err.message
+        })
+    }
+}
