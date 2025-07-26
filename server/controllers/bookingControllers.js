@@ -92,6 +92,32 @@ export const createBooking = async(req, res) => {
         }
     }
 
+export const deleteBooking = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const booking = await Booking.findById(id);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found' });
+        }
+        // Free up seats in the show
+        const show = await Show.findById(booking.show);
+        if (show) {
+            booking.bookedSeats.forEach(seat => {
+                if (show.occupiedSeats[seat]) {
+                    delete show.occupiedSeats[seat];
+                }
+            });
+            show.markModified('occupiedSeats');
+            await show.save();
+        }
+        await Booking.findByIdAndDelete(id);
+        res.json({ success: true, message: 'Booking deleted successfully' });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
 
 export const getOccupiedSeats= async(req, res)=>{
     try{
