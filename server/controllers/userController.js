@@ -74,19 +74,58 @@ export const updateFavorite = async (req, res) => {
     }
 }
 
-export const getFavorites = async(req, res)=>{
-    try {
-        const user = await clerkClient.users.getUser(req.auth().userId)
-        const getUser= user.privateMetadata
+// export const getFavorites = async(req, res)=>{
+//     try {
+//         const user = await clerkClient.users.getUser(req.auth().userId)
+//         const favorites= user.privateMetadata.favorites
 
-        //get movies from db
+//         //get movies from db
 
-        const movies = await Movie.find({_id: {$in: favorites}})
+//         const movies = await Movie.find({_id: {$in: favorites}})
 
-        res.json({success:true, movies})
-    } catch (error) {
-        console.log(error.message);
-        res.json({success: false, message: error.message})
+//         res.json({success:true, movies})
+//     } catch (error) {
+//         console.log(error.message);
+//         res.json({success: false, message: error.message})
         
+//     }
+// }
+
+export const getFavorites = async(req, res) => {
+    try {
+        // Check for auth
+        const auth = req.auth();
+        if (!auth || !auth.userId) {
+            return res.status(401).json({
+                success: false,
+                message: "Authentication required"
+            });
+        }
+
+        // Get user and check for favorites
+        const user = await clerkClient.users.getUser(auth.userId);
+        if (!user.privateMetadata?.favorites) {
+            return res.json({
+                success: true,
+                movies: [] // Return empty array if no favorites exist
+            });
+        }
+
+        // Get movies from database
+        const movies = await Movie.find({
+            _id: { $in: user.privateMetadata.favorites }
+        }).lean();
+
+        return res.json({
+            success: true,
+            movies
+        });
+
+    } catch (error) {
+        console.error("Error in getFavorites:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
 }

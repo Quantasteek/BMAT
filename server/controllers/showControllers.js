@@ -90,19 +90,54 @@ export const addShow = async(req, res)=>{
 
 //API to get all shows from db
 
+// export const getShows = async(req, res)=>{
+//     try{
+//         const shows = await Show.find({showDateTime: {$gte: new Date()}})
+//         .populate('movie')
+//         .sort({showDateTime: 1});
+
+//         const uniqueShows = new Set(shows.map(show => show.movie))
+
+//         res.json({success:true, shows:Array.from(uniqueShows)});       
+
+//     }catch(error) {
+//         console.error("Error fetching shows:", error);
+//         res.json({success:false, message:error.message});
+//     }
+// }
+
 export const getShows = async(req, res)=>{
-    try{
+    try {
         const shows = await Show.find({showDateTime: {$gte: new Date()}})
-        .populate('movie')
-        .sort({showDateTime: 1});
+            .populate({
+                path: 'movie',
+                model: 'Movie'
+            })
+            .sort({showDateTime: 1})
+            .lean(); // Convert to plain JavaScript objects
 
-        const uniqueShows = new Set(shows.map(show=>show.movie))
+        // Get unique movies while preserving full object data
+        const uniqueMovies = [];
+        const seen = new Set();
+        
+        shows.forEach(show => {
+            if (show.movie && !seen.has(show.movie._id)) {
+                uniqueMovies.push(show.movie);
+                seen.add(show.movie._id);
+            }
+        });
 
-        res.json({success:true, shows: Array.from(uniqueShows)});       
+        res.json({
+            success: true,
+            shows: uniqueMovies
+        });       
 
-    }catch(error) {
+    } catch(error) {
         console.error("Error fetching shows:", error);
-        res.json({success:false, message:error.message});
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
 }
 
