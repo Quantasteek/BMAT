@@ -1,18 +1,22 @@
 import { ChartLineIcon, CircleDollarSignIcon, PlayCircleIcon, StarIcon, UsersIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { dummyDashboardData } from '../../assets/assets'
 import Loading from '../../components/Loading'
 import Title from './Title'
 import BlurCircle from '../../components/BlurCircle'
 import { dateFormat } from '../../lib/dateFormat'
+import { useAppContext } from '../../context/AppContext'
+import toast from 'react-hot-toast'
 
 const Dashboard = () => {
+
+    const {image_base_url ,axios, getToken, user }= useAppContext()
+
     const currency = import.meta.env.VITE_CURRENCY || '$'
     const [dashboardData, setDashboardData] = useState({
         totalBookings: 0,
         totalRevenue: 0,
         activeShows: [],
-        totalUsers: 0,
+        totalUser: 0,
     })
 
     const [loading, setLoading] = useState(true)
@@ -35,20 +39,34 @@ const Dashboard = () => {
         },
         {
             title: 'Total Users',
-            value: dashboardData.totalUsers,
+            value: dashboardData.totalUser,
             icon: UsersIcon,
         }
     ]
 
     const fetchDashboardData = async () => {
-        setDashboardData(dummyDashboardData)
+        try {
+            const {data}=await  axios.get('/api/admin/dashboard', {headers: {Authorization: `Bearer ${await getToken()}`}})
+           
+            if(data.success){
+                setDashboardData(data.dashboardData)
+                setLoading(false)
+            }else{
+                console.log(data)
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error("error fetching dashboard data: ", error)
+        }
         setLoading(false)
 
     }
 
     useEffect(() => {
+        if(user){
         fetchDashboardData();
-    }, [])
+        }
+    }, [user])
 
   return !loading ? (
     <>
@@ -72,7 +90,7 @@ const Dashboard = () => {
         <BlurCircle top='100px' left='-10%'/>
         {dashboardData.activeShows.map((show) => (
             <div key={show._id} className='w-55 rounded-lg overflow-hidden h-full pb-3 bg-[#F84565]/10 border border-[#F84565]/20 hover:-translate-y-1 transition duration-300 '>
-                <img src={show.movie.poster_path} alt={show.movie.title} className='h-60 w-full object-cover' />
+                <img src={image_base_url + show.movie.poster_path} alt={show.movie.title} className='h-60 w-full object-cover' />
                 <p className='font-medium p-2 truncate'>
                     {show.movie.title} 
                 </p>
@@ -82,7 +100,8 @@ const Dashboard = () => {
                     </p>
                     <p className='flex items-center gap-1 text-sm text-gray-400 mt-1 pr-1'>
                         <StarIcon className='w-4 h-4 text-[#F84565] fill-[#F84565]' />
-                        {show.movie.vote_average.toFixed(1)}
+                        {/* {show.movie.vote_average.toFixed(1)} */}
+                        {show.movie?.vote_average ? show.movie.vote_average.toFixed(1) : 'N/A'}
                     </p>
 
                 </div>
