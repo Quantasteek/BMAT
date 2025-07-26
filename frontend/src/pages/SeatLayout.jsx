@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import {  useParams } from 'react-router-dom'
 import { useState, } from 'react'
 import { assets} from '../assets/assets'
 import Loading from '../components/Loading'
@@ -17,7 +17,7 @@ const SeatLayout = () => {
     const [selectedSeats, setSelectedSeats] = useState([])  
     const [selectedTime, setSelectedTime] = useState(null)
     const [show, setShow] = useState(null) 
-    const navigate = useNavigate() 
+    // const navigate = useNavigate() 
     const [occupiedSeats, setOccupiedSeats] = useState([])
 
     const {axios, getToken, user}= useAppContext()
@@ -66,8 +66,7 @@ const SeatLayout = () => {
             })
 
             if(data.success){
-                toast.success(data.message)
-                navigate('/my-bookings')
+                window.location.href=data.url;
             }else{
                 toast.error(data.message)
             }
