@@ -1,16 +1,40 @@
 import { clerkClient } from "@clerk/express";
 import Movie from "../models/Movie.js";
+import Booking from "../models/Booking.js";
+import Show from "../models/Show.js";
 
 export const getUserBookings = async (req, res) => {
     try {
         const user= req.auth().userId;
 
-        const bookings = await Booking.find({user})
-        .populate({
-            path: 'show',   
-            populate: {path: 'movie'}   
-        }).sort({createdAt: -1})
-}catch (error) {
+        const bookings = await Booking.find({user}).sort({createdAt: -1});
+
+        // Manually populate show and movie data since they're stored as strings
+        const populatedBookings = await Promise.all(
+            bookings.map(async (booking) => {
+                const show = await Show.findById(booking.show);
+                if (show) {
+                    const movie = await Movie.findById(show.movie);
+                    
+                    return {
+                        ...booking.toObject(),
+                        show: {
+                            ...show.toObject(),
+                            movie: movie ? movie.toObject() : null
+                        }
+                    };
+                }
+                return booking.toObject();
+            })
+        );
+
+        // console.log('Final populated bookings:', JSON.stringify(populatedBookings, null, 2));
+
+        res.json({
+            success: true,
+            bookings: populatedBookings
+        })
+    } catch (error) {
         console.log(error.message);
         res.json({success: false, message: error.message})
     }

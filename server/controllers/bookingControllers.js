@@ -78,6 +78,7 @@ export const getOccupiedSeats= async(req, res)=>{
 
         res.json({
             success: true,
+            
             occupiedSeats
         })
     }catch(err){
