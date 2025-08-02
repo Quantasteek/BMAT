@@ -57,30 +57,3 @@ export const stripeWebHooks = async (req, res) => {
         res.status(500).send("Internal server error")
     }
 }
-
-export const testWebhook = async (req, res) => {
-    try {
-        const { bookingId } = req.body;
-        
-        if (!bookingId) {
-            return res.status(400).json({ success: false, message: 'bookingId is required' });
-        }
-
-        console.log('Manual webhook test for booking:', bookingId);
-
-        const updatedBooking = await Booking.findByIdAndUpdate(bookingId, {
-            isPaid: true,
-            paymentLink: ""
-        }, { new: true });
-        
-        if (!updatedBooking) {
-            return res.status(404).json({ success: false, message: 'Booking not found' });
-        }
-        
-        console.log('Booking updated successfully:', updatedBooking);
-        res.json({ success: true, message: 'Booking marked as paid', booking: updatedBooking });
-    } catch (error) {
-        console.error('Manual webhook test error:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
-}
