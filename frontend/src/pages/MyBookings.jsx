@@ -6,6 +6,7 @@ import timeFormat from '../lib/timeFormat'
 import { dateFormat } from '../lib/dateFormat'
 import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 
 const TrashIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 inline">
@@ -89,6 +90,29 @@ const MyBookings = () => {
         }
     }, [user]) 
 
+    // Refresh bookings when page becomes visible (user returns from payment)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden && user) {
+                getMyBookings();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, [user]);
+
+    // Refresh bookings every 30 seconds to check for payment updates
+    useEffect(() => {
+        if (!user) return;
+        
+        const interval = setInterval(() => {
+            getMyBookings();
+        }, 30000); // 30 seconds
+
+        return () => clearInterval(interval);
+    }, [user]);
+
   return !isLoading ? (
     <div className='relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh]'>
         <BlurCircle top='100px' left='100px'/>
@@ -112,7 +136,7 @@ const MyBookings = () => {
                         <p className='text-2xl font-semibold mb-3'>{currency}{item.amount}</p>
                         {!item.isPaid && (
                             <>
-                                <button className='bg-[#F84565] px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer'>Pay now</button>
+                                <Link to={item.paymentLink} className='bg-[#F84565] px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer'>Pay now</Link>
                                 <button
                                     className='ml-2 mb-4 text-gray-400 hover:text-red-600'
                                     title='Delete booking'

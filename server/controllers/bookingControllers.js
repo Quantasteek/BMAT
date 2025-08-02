@@ -118,6 +118,25 @@ export const deleteBooking = async (req, res) => {
     }
 }
 
+export const markBookingAsPaid = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const booking = await Booking.findByIdAndUpdate(bookingId, {
+            isPaid: true,
+            paymentLink: ""
+        }, { new: true });
+        
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found' });
+        }
+        
+        res.json({ success: true, message: 'Booking marked as paid', booking });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+
 
 export const getOccupiedSeats= async(req, res)=>{
     try{

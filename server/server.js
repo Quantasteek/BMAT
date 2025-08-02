@@ -9,15 +9,22 @@ import showRouter from './routes/showRoutes.js';
 import bookingRouter from './routes/bookingRoutes.js';
 import adminRouter from './routes/adminRoutes.js';
 import userRouter from './routes/userRoutes.js';
-import { stripeWebHooks } from './controllers/stripeWebhooks.js';
+import { stripeWebHooks, testWebhook } from './controllers/stripeWebhooks.js';
 
 
 const app = express();
 const port = 9000;
 
 //stripe webhook routes
+app.post('/api/stripe/webhook', express.raw({type: 'application/json'}), stripeWebHooks)
 
-app.use('/api/stripe', express.raw({type: 'application/json'}), stripeWebHooks)
+// Test route for webhook
+app.get('/api/stripe/webhook/test', (req, res) => {
+    res.json({ message: 'Webhook endpoint is accessible' });
+});
+
+// Manual webhook test
+app.post('/api/stripe/webhook/test', testWebhook);
 
 // Middleware
 
