@@ -2,6 +2,7 @@ import axios from 'axios';
 import Movie from '../models/Movie.js';
 import Show from '../models/Show.js';
 import dotenv from 'dotenv';
+import { inngest } from '../inngest/index.js';
 dotenv.config();
 
 //API to fetch now playing movies from TMDB
@@ -80,7 +81,10 @@ export const addShow = async(req, res)=>{
         await Show.insertMany(showsToCreate);   
     }
 
-    
+    await inngest.send({
+        name:"app/show.added",
+        data:{movieTitle: movie.title}
+    })
 
     res.json({success:true, message:"Show added successfully"}) 
               
