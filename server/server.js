@@ -16,7 +16,7 @@ const app = express();
 const port = 9000;
 
 //stripe webhook routes
-app.post('/api/stripe', express.raw({type: 'application/json'}), stripeWebHooks)
+app.use('/api/stripe', express.raw({type: 'application/json'}), stripeWebHooks)
 
 
 

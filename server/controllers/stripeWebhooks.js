@@ -2,9 +2,6 @@ import stripe from 'stripe'
 import Booking from '../models/Booking.js';
 
 export const stripeWebHooks = async (req, res) => {
-    console.log('Webhook received:', req.method, req.url);
-    console.log('Headers:', req.headers);
-    
     const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
     const sig = req.headers["stripe-signature"]
 
@@ -21,31 +18,18 @@ export const stripeWebHooks = async (req, res) => {
     }
     
     try {
-        console.log('Processing event type:', event.type);
-        
         switch(event.type){
-            case "checkout.session.completed":{
-                const session = event.data.object;
-                const {bookingId} = session.metadata
-                
-                console.log('Webhook triggered for booking:', bookingId);
-                console.log('Session data:', session);
-
-                if (!bookingId) {
-                    console.error('No bookingId found in session metadata');
-                    break;
-                }
-
-                const updatedBooking = await Booking.findByIdAndUpdate(bookingId, {
-                    isPaid: true,
-                    paymentLink: ""
-                }, { new: true })
-                
-                console.log('Booking updated successfully:', updatedBooking);
-                break;
-            }
             case "payment_intent.succeeded": {
-                console.log('Payment intent succeeded event received');
+                const paymentIntent= event.data.object;
+                const sessionList = await stripeInstance.checkout.sessions.list({
+                    payment_intent: paymentIntent.id
+                })
+                const session = sessionList.data[0]
+                const {bookingId} = session.metadata;
+                await Booking.findByIdAndUpdate(bookingId, {
+                    isPaid: true,
+                    paymentLink:""
+                })
                 break;
             }
             default:
